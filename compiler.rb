@@ -38,6 +38,6 @@ end
 
 Token = Struct.new(:type, :value)
 
-tokens = Tokenizer.new(File.read("test.src")).tokenize
+tokens = Tokenizer.new(File.read("test.suvan")).tokenize
 
 puts(tokens.map(&:inspect).join("\n"))
