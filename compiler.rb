@@ -1,6 +1,6 @@
 class Tokenizer
   TOKEN_TYPES = [
-    [:def, /\bdef\b/],
+    [:def, /\bmake\b/],
     [:end, /\bend\b/],
     [:identifier,/\b[a-zA-Z]+\b/],
     [:integer,/\b[0-9]+\b/],
@@ -58,8 +58,10 @@ class Parser
   def parse_expr
     if peek(:integer)
       parse_integer
-    else
+    elsif peek(:identifier) && peek(:oparen, 1)
       parse_call
+    else
+      parse_var_ref
     end
   end
 
@@ -85,6 +87,11 @@ class Parser
     consume(:cparen)
     arg_names
   end
+
+  def parse_var_ref
+    VarRefNode.new(consume(:identifier).value)
+  end
+
 
   def parse_arg_exprs
     arg_exprs = []
@@ -112,22 +119,42 @@ class Parser
     end
   end
 
-  def peek(expected_type)
-    @tokens.fetch(0).type == expected_type
+  def peek(expected_type, offset=0)
+    @tokens.fetch(offset).type == expected_type
+  end
+end
+
+class Generator
+  def generate(node)
+    case node
+    when DefNode
+      "function #{node.name}(#{node.arg_names.join(",")}){\n\treturn #{generate(node.body)}\n}"
+    when IntegerNode
+      node.value
+    when CallNode
+      "#{node.name}(#{node.arg_exprs.map { |expr| generate(expr) }.join(",")})"
+    when VarRefNode
+      node.value
+    else
+      raise RuntimeError.new("Unexpected node type: #{node.class}")
+    end
   end
 end
 
 DefNode = Struct.new(:name, :arg_names, :body)
 IntegerNode = Struct.new(:value)
 CallNode = Struct.new(:name, :arg_exprs)
+VarRefNode = Struct.new(:value)
 
 Token = Struct.new(:type, :value)
 
 tokens = Tokenizer.new(File.read("test.suvan")).tokenize
 
-puts(tokens.map(&:inspect).join("\n"))
-
-
+# puts(tokens.map(&:inspect).join("\n"))
 tree = Parser.new(tokens).parse
-
-puts tree
+# puts tree
+generated_code = Generator.new.generate(tree)
+# puts generated_code
+RUNTIME = "function add(x,y){ return x + y};"
+TEST = "console.log(f(1,2));"
+puts [RUNTIME,generated_code,TEST].join("\n")
