@@ -36,7 +36,11 @@ console.log(f(1,2));
 ## Execution
 
 To run the compiler, you can use the following command:
-
+- Windows
 ```bash
 ruby .\compiler.rb | node
+```
+- Linux / mac
+```shell
+./compiler.rb | node
 ```
