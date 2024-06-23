@@ -145,16 +145,29 @@ DefNode = Struct.new(:name, :arg_names, :body)
 IntegerNode = Struct.new(:value)
 CallNode = Struct.new(:name, :arg_exprs)
 VarRefNode = Struct.new(:value)
-
 Token = Struct.new(:type, :value)
 
-tokens = Tokenizer.new(File.read("test.suvan")).tokenize
+#Recieving File Name from User
+puts "Enter the file name"
+file_name = gets.chomp.to_s
 
-# puts(tokens.map(&:inspect).join("\n"))
+# Checking if the file exists
+unless File.exist?(file_name)
+  raise RuntimeError.new("#{file_name} not found")
+end
+
+# Tokenizing the code
+tokens = Tokenizer.new(File.read(file_name)).tokenize
+
+# Parsing the token tree
 tree = Parser.new(tokens).parse
-# puts tree
+
+# Generating the code
 generated_code = Generator.new.generate(tree)
-# puts generated_code
+
+# Adding runtime and test code
 RUNTIME = "function add(x,y){ return x + y};"
 TEST = "console.log(f(1,2));"
+
+# Outputting the final code in JS to console. Pipe this to node.
 puts [RUNTIME,generated_code,TEST].join("\n")
