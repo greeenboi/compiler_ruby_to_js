@@ -38,9 +38,15 @@ console.log(f(1,2));
 To run the compiler, you can use the following command:
 - Windows
 ```bash
-ruby .\compiler.rb | node
+ruby .\compiler.rb 
 ```
 - Linux / mac
 ```shell
 ./compiler.rb | node
+```
+
+Then once ruby has compiled the code, we run the newly created file `output.js` to node to execute the JavaScript code.
+
+```shell
+node output.js
 ```

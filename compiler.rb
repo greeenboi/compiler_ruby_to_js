@@ -169,5 +169,9 @@ generated_code = Generator.new.generate(tree)
 RUNTIME = "function add(x,y){ return x + y};"
 TEST = "console.log(f(1,2));"
 
-# Outputting the final code in JS to console. Pipe this to node.
-puts [RUNTIME,generated_code,TEST].join("\n")
+# Outputting the final code in JS to a file.
+File.open('output.js', 'w') do |file|
+  file.puts [RUNTIME,generated_code,TEST].join("\n")
+end
+
+puts "Code has been generated in output.js"
